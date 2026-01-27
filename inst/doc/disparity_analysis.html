@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Carmelo Fruciano" />
+
+<meta name="date" content="2026-01-23" />
+
+<title>Analysis of Disparity: Estimating and Comparing How Variable Phenotype Is</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Analysis of Disparity: Estimating and
+Comparing How Variable Phenotype Is</h1>
+<h4 class="author">Carmelo Fruciano</h4>
+<h4 class="date">2026-01-23</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This vignette demonstrates how to use the
+<code>disparity_resample()</code> and <code>disparity_test()</code>
+functions to estimate and compare morphospace occupation (disparity)
+between groups. These functions provide complementary approaches for
+disparity analysis:</p>
+<ul>
+<li><code>disparity_resample()</code>: Provides resampling-based
+estimates (bootstrap or rarefaction) with confidence intervals</li>
+<li><code>disparity_test()</code>: Performs permutation tests to assess
+statistical differences between two groups</li>
+</ul>
+<p>Disparity analysis is fundamental in geometric morphometrics and
+evolutionary biology to <strong>quantify how much morphological
+variation exists within groups</strong>. Imagine two populations of the
+same species and we don’t want to know whether the average shape of one
+population is different from the average shape of the other population.
+Rather, we want to know whether the amount of variability in shape is
+different between the two populations.</p>
+</div>
+<div id="basic-concepts" class="section level2">
+<h2>Basic Concepts</h2>
+<p>Disparity (also called “morphospace occupation”) can be quantified
+using several statistics. The ones implemented in
+<em>GeometricMorphometricsMix</em> are:</p>
+<ul>
+<li><strong>Multivariate variance</strong>: Sum of variances across all
+variables (trace of covariance matrix)</li>
+<li><strong>Mean pairwise Euclidean distance</strong>: Average distance
+between all pairs of observations</li>
+<li><strong>Convex hull volume</strong>: Volume of the smallest convex
+hull containing all observations</li>
+<li><strong>Claramunt proper variance</strong>: Variance based on linear
+shrinkage covariance estimates</li>
+</ul>
+</div>
+<div id="statistical-approaches" class="section level2">
+<h2>Statistical approaches</h2>
+<p><em>GeometricMorphometricsMix</em> provides three main statistical
+approaches, all based on resampling, for comparing disparity across
+groups:</p>
+<ul>
+<li><strong>Bootstrapping</strong> (resampling with replacement) of the
+statistic of choice to derive confidence intervals (this is the most
+sensible choice in most cases, particularly with more than two
+groups)</li>
+<li><strong>Rarefaction</strong> (resampling without replacement to a
+common sample size) to account for differences in sample sizes between
+groups (this is useful when groups have very different sample sizes and
+we use statistics sensitive to sample size)</li>
+<li><strong>Permutation tests</strong> between two groups to assess
+whether they differ significantly in disparity (or, more formally, to
+test the null hypothesis that they have the same amount of
+variation)</li>
+</ul>
+<p>Bootstrapping and rarefaction are implemented in the
+<code>disparity_resample()</code> function, permutation tests in the
+<code>disparity_test()</code> function.</p>
+</div>
+<div id="simulate-example-data" class="section level2">
+<h2>Simulate Example Data</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;MASS&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="co"># Group A: smaller, more compact group</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  grpA <span class="ot">=</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="dv">25</span>, <span class="at">mu =</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">8</span>), <span class="at">Sigma =</span> <span class="fu">diag</span>(<span class="dv">8</span>) <span class="sc">*</span> <span class="fl">0.5</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="co"># Group A: 25 observations, centered at origin, low variance</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  </span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="co"># Group B: larger, more dispersed group  </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  grpB <span class="ot">=</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="dv">40</span>, <span class="at">mu =</span> <span class="fu">rep</span>(<span class="dv">2</span>, <span class="dv">8</span>), <span class="at">Sigma =</span> <span class="fu">diag</span>(<span class="dv">8</span>) <span class="sc">*</span> <span class="fl">1.5</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="co"># Group B: 40 observations, shifted mean, higher variance</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  </span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="co"># Group C: intermediate size and dispersion</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  grpC <span class="ot">=</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="dv">30</span>, <span class="at">mu =</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">8</span>), <span class="at">Sigma =</span> <span class="fu">diag</span>(<span class="dv">8</span>) <span class="sc">*</span> <span class="fl">1.0</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="co"># Group C: 30 observations, negative mean, intermediate variance</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  </span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="co"># Combine data</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  Data <span class="ot">=</span> <span class="fu">rbind</span>(grpA, grpB, grpC)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  groups <span class="ot">=</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="fu">nrow</span>(grpA)), <span class="fu">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="fu">nrow</span>(grpB)), <span class="fu">rep</span>(<span class="st">&quot;C&quot;</span>, <span class="fu">nrow</span>(grpC))))</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="co"># Combined dataset with group labels</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  </span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Sample sizes:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="fu">table</span>(groups)</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="co"># Display sample sizes for each group</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>}</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; Sample sizes:</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; groups</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt;  A  B  C </span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; 25 40 30</span></span></code></pre></div>
+</div>
+<div id="bootstrap-analysis" class="section level2">
+<h2>Bootstrap Analysis</h2>
+<p>Bootstrap resampling provides confidence intervals for disparity
+estimates by resampling with replacement from the original data.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;MASS&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="co"># Bootstrap multivariate variance</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  boot_mv <span class="ot">=</span> <span class="fu">disparity_resample</span>(Data, </span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                               <span class="at">group =</span> groups, </span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                               <span class="at">n_resamples =</span> <span class="dv">1000</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                               <span class="at">statistic =</span> <span class="st">&quot;multivariate_variance&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>                               <span class="at">bootstrap_rarefaction =</span> <span class="st">&quot;bootstrap&quot;</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                               <span class="at">CI =</span> <span class="fl">0.95</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="co"># Bootstrap analysis of multivariate variance with 95% CI</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  </span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="fu">print</span>(boot_mv)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="co"># Display formatted results with CI overlap assessment</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  </span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="co"># Bootstrap mean pairwise Euclidean distance</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  boot_ed <span class="ot">=</span> <span class="fu">disparity_resample</span>(Data,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>                               <span class="at">group =</span> groups,</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>                               <span class="at">n_resamples =</span> <span class="dv">1000</span>, </span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>                               <span class="at">statistic =</span> <span class="st">&quot;mean_pairwise_euclidean_distance&quot;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>                               <span class="at">bootstrap_rarefaction =</span> <span class="st">&quot;bootstrap&quot;</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="co"># Bootstrap analysis of mean pairwise Euclidean distances</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  </span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Mean pairwise Euclidean distance results:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  boot_ed<span class="sc">$</span>results</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>  <span class="co"># Direct access to results table</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>}</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;future&#39; was built under R version 4.5.2</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; Disparity resampling results</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; ===========================</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; Statistic: Multivariate variance </span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; Confidence level: 95% </span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;  group   average   CI_min    CI_max</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;      A  3.408176 2.764179  4.099788</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt;      B 11.507280 9.648819 13.493110</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;      C  7.817262 6.375453  9.238869</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; Confidence interval overlap assessment:</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; At least one pair of confidence intervals does not overlap.</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; Mean pairwise Euclidean distance results:</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt;   group  average   CI_min   CI_max</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; A     A 2.470406 2.206519 2.703814</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; B     B 4.585098 4.198769 4.956907</span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt; C     C 3.767456 3.380240 4.105780</span></span></code></pre></div>
+</div>
+<div id="rarefaction-analysis" class="section level2">
+<h2>Rarefaction Analysis</h2>
+<p>Rarefaction resampling accounts for differences in sample sizes by
+resampling without replacement to a common sample size.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;MASS&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> <span class="fu">requireNamespace</span>(<span class="st">&quot;geometry&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="co"># Bootstrap convex hull volume</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  rare_hull <span class="ot">=</span> <span class="fu">disparity_resample</span>(<span class="fu">prcomp</span>(Data)<span class="sc">$</span>x[,<span class="fu">seq</span>(<span class="dv">3</span>)],</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                                 <span class="at">group =</span> groups,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>                                 <span class="at">n_resamples =</span> <span class="dv">200</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                                 <span class="at">statistic =</span> <span class="st">&quot;convex_hull_volume&quot;</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>                                 <span class="at">bootstrap_rarefaction =</span> <span class="st">&quot;rarefaction&quot;</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>                                 <span class="at">sample_size =</span> <span class="st">&quot;smallest&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="co"># Rarefaction analysis of convex hull volume</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="co"># Note: fewer resamples due to computational intensity, using the scores along</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="co"># the first few principal components due to the potential issues with the convex hull and high dimensional data</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">print</span>(rare_hull)</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="co"># Convex hull results - Group B should have largest volume</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>}</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; Disparity resampling results</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; ===========================</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; Statistic: Convex hull volume </span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; Confidence level: 95% </span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt;  group   average    CI_min    CI_max</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt;      A  5.202352  5.202352  5.202352</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt;      B 51.499119 36.647855 63.410444</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt;      C 19.587730 14.935754 22.268621</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; Confidence interval overlap assessment:</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt; At least one pair of confidence intervals does not overlap.</span></span></code></pre></div>
+</div>
+<div id="visualization" class="section level2">
+<h2>Visualization</h2>
+<p>The plot method creates confidence interval plots for visual
+comparison of disparity estimates.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>  <span class="co"># Plot bootstrap multivariate variance results</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>   <span class="fu">plot</span>(boot_mv)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>  <span class="co"># Plot rarefaction for convex hull volume</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">plot</span>(rare_hull) </span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>  </span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  </span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Plotting methods create ggplot2 confidence interval plots</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; Plotting methods create ggplot2 confidence interval plots</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;showing average values and confidence intervals for each group.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; showing average values and confidence intervals for each group.</span></span></code></pre></div>
+</div>
+<div id="permutation-tests-between-two-groups" class="section level2">
+<h2>Permutation Tests Between Two Groups</h2>
+<p>The <code>disparity_test()</code> function performs permutation tests
+to assess whether two groups differ significantly in disparity.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;MASS&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="co"># Test Groups A vs B (different variances expected)</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  test_AB <span class="ot">=</span> <span class="fu">disparity_test</span>(grpA, grpB, <span class="at">perm =</span> <span class="dv">999</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="co"># Permutation test between groups A and B</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Groups A vs B comparison:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">print</span>(test_AB)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="co"># Results show observed values, differences, and p-values</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  </span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="co"># Test Groups A vs C (more similar variances expected)  </span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  test_AC <span class="ot">=</span> <span class="fu">disparity_test</span>(grpA, grpC, <span class="at">perm =</span> <span class="dv">999</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="co"># Permutation test between groups A and C</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  </span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Groups A vs C comparison:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  <span class="fu">print</span>(test_AC)</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  <span class="co"># Compare groups with more similar dispersions</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>}</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; Groups A vs B comparison:</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt;                                  Observed_grp1 Observed_grp2 difference p_value</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; Multivariate variance                 3.538886     11.795823   8.256936   0.001</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; Mean pairwise Euclidean distance      2.578045      4.699841   2.121796   0.001</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; Groups A vs C comparison:</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt;                                  Observed_grp1 Observed_grp2 difference p_value</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; Multivariate variance                 3.538886      8.053470   4.514584   0.001</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; Mean pairwise Euclidean distance      2.578045      3.891326   1.313282   0.001</span></span></code></pre></div>
+</div>
+<div id="univariate-data-analysis" class="section level2">
+<h2>Univariate Data Analysis</h2>
+<p><code>disparity_resample()</code> also works with univariate data
+(vectors), defaulting to variance as test statistic.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Simulate univariate data</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">456</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>uni_A <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">30</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># Group A: normal distribution, sd=1</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>uni_B <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">35</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>) </span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># Group B: normal distribution, sd=2 (higher variance)</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>uni_data <span class="ot">=</span> <span class="fu">c</span>(uni_A, uni_B)</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>uni_groups <span class="ot">=</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;A&quot;</span>, <span class="fu">length</span>(uni_A)), <span class="fu">rep</span>(<span class="st">&quot;B&quot;</span>, <span class="fu">length</span>(uni_B))))</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co"># Combined univariate dataset</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co"># Bootstrap analysis of univariate variance</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>uni_boot <span class="ot">=</span> <span class="fu">disparity_resample</span>(uni_data,</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>                              <span class="at">group =</span> uni_groups,</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>                              <span class="at">n_resamples =</span> <span class="dv">1000</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>                              <span class="at">bootstrap_rarefaction =</span> <span class="st">&quot;bootstrap&quot;</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co"># Bootstrap for univariate data (statistic argument ignored)</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Univariate variance analysis:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; Univariate variance analysis:</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="fu">print</span>(uni_boot)</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; Disparity resampling results</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; ===========================</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; Statistic: Variance </span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; Confidence level: 95% </span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt;  group  average    CI_min   CI_max</span></span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#&gt;      A 1.292491 0.8856887 1.756390</span></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a><span class="co">#&gt;      B 3.187117 1.5397112 5.149367</span></span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a><span class="co">#&gt; Confidence interval overlap assessment:</span></span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a><span class="co">#&gt; All confidence intervals overlap.</span></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co"># Group B should show higher variance</span></span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a></span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="fu">plot</span>(uni_boot)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Plotting univariate bootstrap results</span></span></code></pre></div>
+</div>
+<div id="advanced-single-group-analysis" class="section level2">
+<h2>Advanced: Single Group Analysis</h2>
+<p><code>disparity_resample()</code> can analyze single groups without
+group comparisons. This might be useful to obtain confidence intervals
+or estimates in a single group to compare it to a known value or
+interval.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;MASS&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="co"># Single group bootstrap analysis</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  single_boot <span class="ot">=</span> <span class="fu">disparity_resample</span>(grpB,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>                                   <span class="at">n_resamples =</span> <span class="dv">500</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>                                   <span class="at">statistic =</span> <span class="st">&quot;multivariate_variance&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>                                   <span class="at">bootstrap_rarefaction =</span> <span class="st">&quot;bootstrap&quot;</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="co"># Analysis of Group B alone</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  </span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Single group analysis (Group B):</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="fu">print</span>(single_boot)</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="co"># Confidence interval for single group disparity</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>}</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; Single group analysis (Group B):</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; Disparity resampling results</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; ===========================</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; Statistic: Multivariate variance </span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; Confidence level: 95% </span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt;  group  average   CI_min   CI_max</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt;    All 11.50473 9.543089 13.35472</span></span></code></pre></div>
+</div>
+<div id="practical-considerations" class="section level2">
+<h2>Practical Considerations</h2>
+<div id="sample-size-effects" class="section level3">
+<h3>Sample Size Effects</h3>
+<ul>
+<li><strong>Bootstrap</strong>: Appropriate when groups have sufficient
+sample sizes</li>
+<li><strong>Rarefaction</strong>: Useful when comparing groups with
+different sample sizes and statistics sensitive to outliers/sample
+size</li>
+<li><strong>Convex hull</strong>: Requires substantially more
+observations than variables. One often needs to restrict the analysis to
+scores along a subset of principal components.</li>
+</ul>
+</div>
+<div id="statistic-selection" class="section level3">
+<h3>Statistic Selection</h3>
+<ul>
+<li><strong>Multivariate variance</strong>: Most commonly used, less
+sensitive to outliers. Also called “sum of univariate variances” and, in
+geometric morphometrics, “Procrustes variance”</li>
+<li><strong>Mean pairwise distance</strong>: Alternative measure, can be
+more robust</li>
+<li><strong>Convex hull volume</strong>: Sensitive to outliers but
+captures occupied space</li>
+<li><strong>Claramunt proper variance</strong>: Accounts for covariance
+structure and how “spread out” across orthogonal dimensions (principal
+components) variation is</li>
+</ul>
+</div>
+<div id="interpretation-guidelines" class="section level3">
+<h3>Interpretation Guidelines</h3>
+<ul>
+<li>Non-overlapping confidence intervals suggest different disparity
+levels</li>
+<li>Permutation test p-values &lt; 0.05 indicate significant
+differences</li>
+<li>Consider biological relevance alongside statistical
+significance</li>
+</ul>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>The <code>disparity_resample()</code> and
+<code>disparity_test()</code> functions provide comprehensive tools for
+morphospace disparity analysis:</p>
+<ol style="list-style-type: decimal">
+<li><strong><code>disparity_resample()</code></strong> offers flexible
+resampling approaches with confidence intervals</li>
+<li><strong><code>disparity_test()</code></strong> provides formal
+statistical tests between two groups<br />
+</li>
+<li>Both functions support multiple disparity statistics and handle
+various data types</li>
+<li>S3 methods enable convenient printing and plotting of results</li>
+</ol>
+<p>These tools support robust comparative analysis of morphological
+variation across groups, time periods, or experimental conditions in
+evolutionary and morphometric studies.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Carmelo Fruciano" />
+
+<meta name="date" content="2026-01-23" />
+
+<title>Partial Least Squares (PLS) Analysis</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Partial Least Squares (PLS) Analysis</h1>
+<h4 class="author">Carmelo Fruciano</h4>
+<h4 class="date">2026-01-23</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This vignette demonstrates how to use the <code>pls</code> function
+to explore associations between two blocks of variables using Partial
+Least Squares analysis.</p>
+</div>
+<div id="simulate-data" class="section level2">
+<h2>Simulate Data</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>X <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">60</span>), <span class="at">ncol=</span><span class="dv">6</span>) <span class="co"># Block 1: shape variables</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>Y <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">60</span>), <span class="at">ncol=</span><span class="dv">6</span>) <span class="co"># Block 2: ecological variables</span></span></code></pre></div>
+</div>
+<div id="run-pls-analysis" class="section level2">
+<h2>Run PLS Analysis</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>pls_result <span class="ot">=</span> <span class="fu">pls</span>(X, Y, <span class="at">perm=</span><span class="dv">999</span>, <span class="at">global_RV_test=</span><span class="cn">TRUE</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># Perform PLS analysis with permutation test</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># pls_result contains scores, singular axes, and significance tests</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>pls_result<span class="sc">$</span>global_significance_RV</span></code></pre></div>
+<pre><code>## observed_RV  RV_p_value 
+##   0.3517908   0.5630000</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Show global RV test result</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>pls_result<span class="sc">$</span>singular_axis_significance</span></code></pre></div>
+<pre><code>##   correlation_PLS_scores pvalue_correlation_PLS_scores singular_values
+## 1              0.9224254                         0.024       1.6697807
+## 2              0.4973531                         0.975       0.8772501
+## 3              0.8229346                         0.095       0.6960334
+## 4              0.5245563                         0.808       0.3283668
+## 5              0.4226646                         0.651       0.2153536
+## 6              0.3028506                         0.198       0.1307253
+##   pvalue_singular_values percentage_squared_covariance
+## 1                  0.466                    66.1724231
+## 2                  0.737                    18.2643823
+## 3                  0.274                    11.4978934
+## 4                  0.793                     2.5590368
+## 5                  0.583                     1.1006833
+## 6                  0.156                     0.4055811</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Show significance for each axis</span></span></code></pre></div>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<p>The output includes scores for each block, singular axes, and
+permutation-based significance tests for the association between blocks.
+Significant results indicate association between the two sets of
+variables. Obviously, in this case, we expect no significant association
+as the data were simulated independently.</p>
+</div>
+<div id="simulating-data-with-expected-significant-covariation" class="section level2">
+<h2>Simulating Data with Expected Significant Covariation</h2>
+<p>In this section, we simulate data with a known association between
+two blocks by constructing a covariance matrix with non-zero covariances
+between blocks, then splitting the data into two blocks for PLS
+analysis.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">50</span> <span class="co"># number of observations</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>p <span class="ot">=</span> <span class="dv">6</span>  <span class="co"># variables per block</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># Simulate a latent variable that drives covariation</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>latent <span class="ot">=</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co"># latent variable</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>latent_mat <span class="ot">=</span> <span class="fu">matrix</span>(latent, <span class="at">nrow=</span>n, <span class="at">ncol=</span>p)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co"># latent variable replicated across columns for element-wise addition</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>X_assoc <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n<span class="sc">*</span>p), <span class="at">ncol=</span>p) <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> latent_mat</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co"># Block 1: shape variables influenced by latent + noise</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>Y_assoc <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n<span class="sc">*</span>p), <span class="at">ncol=</span>p) <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> latent_mat</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co"># Block 2: ecological variables influenced by latent + noise</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co"># Now X_assoc and Y_assoc have shared structure and will show significant covariation</span></span></code></pre></div>
+</div>
+<div id="run-pls-analysis-on-associated-data" class="section level2">
+<h2>Run PLS Analysis on Associated Data</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>pls_assoc_result <span class="ot">=</span> <span class="fu">pls</span>(X_assoc, Y_assoc, <span class="at">perm=</span><span class="dv">999</span>, <span class="at">global_RV_test=</span><span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co"># Perform PLS analysis with permutation test</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>pls_assoc_result<span class="sc">$</span>global_significance_RV <span class="co"># Show global RV test result</span></span></code></pre></div>
+<pre><code>## observed_RV  RV_p_value 
+##   0.2116501   0.0020000</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>pls_assoc_result<span class="sc">$</span>singular_axis_significance <span class="co"># Show significance for each axis</span></span></code></pre></div>
+<pre><code>##   correlation_PLS_scores pvalue_correlation_PLS_scores singular_values
+## 1             0.60055147                         0.029      1.28679007
+## 2             0.49643684                         0.067      0.64988017
+## 3             0.32948130                         0.383      0.41189941
+## 4             0.28365981                         0.174      0.27593509
+## 5             0.18058368                         0.182      0.17274065
+## 6             0.04361811                         0.427      0.02841955
+##   pvalue_singular_values percentage_squared_covariance
+## 1                  0.001                   70.32250776
+## 2                  0.081                   17.93682258
+## 3                  0.216                    7.20545296
+## 4                  0.244                    3.23364840
+## 5                  0.185                    1.26726680
+## 6                  0.582                    0.03430151</code></pre>
+</div>
+<div id="interpretation-of-associated-data" class="section level2">
+<h2>Interpretation of Associated Data</h2>
+<p>In this case, the simulated data have a known association between
+blocks. The PLS analysis should detect significant covariation, as
+reflected in the permutation test results and the singular axis
+significance output.</p>
+</div>
+<div id="using-pls_major_axis-for-major-axis-projection-and-predictions" class="section level2">
+<h2>Using <code>pls_major_axis</code> for Major Axis Projection and
+Predictions</h2>
+<p>Sometimes, after fitting a PLS model it is useful to project the
+scores onto the major axis (first principal component of the paired PLS
+scores) to obtain simplified representations and predictions in the
+original variable space. In a sense, these projections are the real
+“predictions” of a PLS model (if all variation is perfectly captured by
+the model). For more details, please see <a href="https://doi.org/10.1093/cz/zoaa035">Fig. 2 in Fruciano et
+al. 2020-Current Zoology</a> and associated text. The function
+<code>pls_major_axis</code> performs these operations.</p>
+<div id="major-axis-projection-for-original-data" class="section level3">
+<h3>Major Axis Projection for Original Data</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>Pred_major_axis <span class="ot">=</span> <span class="fu">pls_major_axis</span>(pls_assoc_result, <span class="at">axes_to_use=</span><span class="dv">1</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co"># Compute projections and predictions based on the first pair of PLS axes</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">names</span>(Pred_major_axis)</span></code></pre></div>
+<pre><code>## [1] &quot;original_major_axis_projection&quot;          
+## [2] &quot;original_major_axis_predictions_reversed&quot;</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Main elements returned (lists for projection, predictions, and optionally new data)</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>Proj_scores <span class="ot">=</span> Pred_major_axis<span class="sc">$</span>original_major_axis_projection[[<span class="dv">1</span>]]<span class="sc">$</span>original_data_PLS_projection</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># Scores of original data projected on the major axis</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="fu">hist</span>(Proj_scores,</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>    <span class="at">main=</span><span class="st">&quot;Original data - projections on the major axis&quot;</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>    <span class="at">xlab=</span><span class="st">&quot;Major axis score&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Distribution of major axis scores (first axis pair)</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>Pred_block1 <span class="ot">=</span> Pred_major_axis<span class="sc">$</span>original_major_axis_predictions_reversed<span class="sc">$</span>Block1</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># Predictions for block 1 back-transformed to original space</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>Pred_block2 <span class="ot">=</span> Pred_major_axis<span class="sc">$</span>original_major_axis_predictions_reversed<span class="sc">$</span>Block2</span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co"># Predictions for block 2 back-transformed to original space</span></span></code></pre></div>
+</div>
+<div id="providing-new-data-for-prediction" class="section level3">
+<h3>Providing New Data for Prediction</h3>
+<p>We now create new data (here, a perturbed version of the original
+associated data) and obtain projections and predictions for it using the
+existing PLS model.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">999</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>X_new <span class="ot">=</span> X_assoc <span class="sc">+</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n <span class="sc">*</span> <span class="fu">ncol</span>(X_assoc), <span class="at">sd=</span><span class="fl">0.2</span>), <span class="at">ncol=</span><span class="fu">ncol</span>(X_assoc))</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co"># New data for block 1 (perturbed version of original data)</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>Y_new <span class="ot">=</span> Y_assoc <span class="sc">+</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n <span class="sc">*</span> <span class="fu">ncol</span>(Y_assoc), <span class="at">sd=</span><span class="fl">0.2</span>), <span class="at">ncol=</span><span class="fu">ncol</span>(Y_assoc))</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co"># New data for block 2 (perturbed version of original data)</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a>Pred_major_axis_new <span class="ot">=</span> <span class="fu">pls_major_axis</span>(pls_assoc_result,</span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>                              <span class="at">new_data_x =</span> X_new,</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>                              <span class="at">new_data_y =</span> Y_new,</span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>                              <span class="at">axes_to_use =</span> <span class="dv">1</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co"># Obtain major axis projections and predictions for new data</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="fu">colnames</span>(Pred_major_axis_new<span class="sc">$</span>new_data_results<span class="sc">$</span>new_data_major_axis_proj)</span></code></pre></div>
+<pre><code>## NULL</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># Names (axes) for the major axis projections of new data</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="fu">head</span>(Pred_major_axis_new<span class="sc">$</span>new_data_results<span class="sc">$</span>new_data_major_axis_proj)</span></code></pre></div>
+<pre><code>##            [,1]
+## [1,] -1.9975730
+## [2,]  0.9804839
+## [3,]  1.5819376
+## [4,] -2.4474063
+## [5,]  0.9048941
+## [6,]  1.2771539</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Scores of new data on the major axis</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="fu">head</span>(Pred_major_axis_new<span class="sc">$</span>new_data_results<span class="sc">$</span>new_data_Block1_proj_prediction_revert)</span></code></pre></div>
+<pre><code>##            [,1]       [,2]       [,3]       [,4]       [,5]        [,6]
+## [1,] -1.1629221 -0.9112237 -1.0816728 -1.0403921 -1.1113456 -0.64515250
+## [2,]  0.4411075  0.1393327  0.2864011  0.4869834  0.3547199 -0.01070961
+## [3,]  0.7650602  0.3515049  0.5626998  0.7954548  0.6508090  0.11742360
+## [4,] -1.4052096 -1.0699095 -1.2883194 -1.2711010 -1.3327937 -0.74098463
+## [5,]  0.4003936  0.1126672  0.2516763  0.4482151  0.3175078 -0.02681320
+## [6,]  0.6008988  0.2439877  0.4226868  0.6391384  0.5007673  0.05249271</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># Predictions for block 1 new data (back-transformed)</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="fu">head</span>(Pred_major_axis_new<span class="sc">$</span>new_data_results<span class="sc">$</span>new_data_Block2_proj_prediction_revert)</span></code></pre></div>
+<pre><code>##            [,1]        [,2]       [,3]       [,4]         [,5]        [,6]
+## [1,] -1.4256076 -1.09357864 -0.8691363 -0.9563543 -1.194361073 -0.38736268
+## [2,]  0.3950640  0.09327271  0.2648004  0.2120555 -0.104869113 -0.08435270
+## [3,]  0.7627701  0.33297131  0.4938123  0.4480297  0.115166611 -0.02315627
+## [4,] -1.7006187 -1.27285167 -1.0404167 -1.1328418 -1.358928037 -0.43313211
+## [5,]  0.3488513  0.06314774  0.2360186  0.1823987 -0.132522882 -0.09204378
+## [6,]  0.5764368  0.21150520  0.3777617  0.3284509  0.003664568 -0.05416727</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="co"># Predictions for block 2 new data (back-transformed)</span></span></code></pre></div>
+</div>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<ul>
+<li>If <code>axes_to_use &gt; 1</code>, the function computes a major
+axis for each pair of PLS axes and combines predictions.</li>
+<li>Setting <code>scale_PLS = FALSE</code> disables scaling of block
+scores prior to major axis computation (default is
+<code>TRUE</code>).</li>
+<li>Predictions can be used to compare observed vs. model-predicted
+configurations (e.g., distances in shape space). Again, please see <a href="https://doi.org/10.1093/cz/zoaa035">Fruciano et al. 2020-Current
+Zoology</a> for an example of using this technique in a biological
+context (effect of chromosomal rearrangements on shape)</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
