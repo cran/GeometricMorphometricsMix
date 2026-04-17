@@ -1,6 +1,6 @@
 Package: GeometricMorphometricsMix
 Title: Heterogeneous Methods for Shape and Other Multidimensional Data
-Version: 0.6.0.1
+Version: 0.6.1.1
 Authors@R: person("Carmelo", "Fruciano", email = "carmelo.fruciano@unict.it", role = c("aut", "cre"))
 Description: Tools for geometric morphometric analyses and multidimensional
     data. Implements methods for morphological disparity analysis using
@@ -16,9 +16,9 @@ Description: Tools for geometric morphometric analyses and multidimensional
     (Burnaby (1966) <doi:10.2307/2528217>; Fruciano (2016) <doi:10.1007/s00427-016-0537-4>),
     and parallel analysis for dimensionality reduction (Buja and Eyuboglu (1992)
     <doi:10.1207/s15327906mbr2704_2>).
-Depends: R (>= 3.5.0), ape, stats, corpcor
+Depends: R (>= 3.5.0), stats, corpcor
 Imports: methods, mclust
-Suggests: Morpho, utils, geometry, nlshrink, lmf, MASS,
+Suggests: ape, Morpho, utils, geometry, nlshrink, lmf, MASS,
         clusterGeneration, ggplot2, Rmpfr, knitr, rmarkdown, phytools,
         mvMORPH, testthat (>= 3.0.0), future, future.apply
 License: MIT + file LICENSE
@@ -28,8 +28,8 @@ RoxygenNote: 7.3.3
 VignetteBuilder: knitr, rmarkdown
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2026-01-23 10:37:07 UTC; carme
+Packaged: 2026-04-17 14:36:49 UTC; carme
 Author: Carmelo Fruciano [aut, cre]
 Maintainer: Carmelo Fruciano <carmelo.fruciano@unict.it>
 Repository: CRAN
-Date/Publication: 2026-01-27 21:00:24 UTC
+Date/Publication: 2026-04-17 18:50:02 UTC
